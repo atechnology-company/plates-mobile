@@ -1,0 +1,33 @@
+[package]
+name = "plates"
+version = "0.1.0"
+description = "platform of the Internet as a technologically enabled singularity"
+authors = ["atechnology company <imhere@atechnology.company>"]
+homepage = "atechnology.company"
+edition = "2021"
+build = "build.rs"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lib]
+# The `_lib` suffix may seem redundant but it is necessary
+# to make the lib name unique and wouldn't conflict with the bin name.
+# This seems to be only an issue on Windows, see https://github.com/rust-lang/cargo/issues/8519
+name = "plates_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-opener = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tauri-plugin-system-info = "2.0.9"
+reqwest = { version = "0.11", features = ["json"] }
+tokio = { version = "1.0", features = ["full"] }
+dotenv = "0.15"
+tauri-plugin-geolocation = "2.0.0"
+
+
