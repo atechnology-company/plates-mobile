@@ -84,11 +84,11 @@
     // Handle swipe gestures
     let touchStartY = 0;
     
-    function handleTouchStart(event: { touches: { clientY: number; }[]; }) {
+    function handleTouchStart(event: TouchEvent) {
         touchStartY = event.touches[0].clientY;
     }
     
-    function handleTouchEnd(event: { changedTouches: { clientY: any; }[]; }) {
+    function handleTouchEnd(event: TouchEvent) {
         const touchEndY = event.changedTouches[0].clientY;
         const diff = touchStartY - touchEndY;
         

@@ -6,3 +6,6 @@ plates is a unitary platform of systems designed to change the way you use your 
 - rust
 - sveltekit
 - typescript
+- candle (for ML capabilities)
+- whisper 3 turbo
+- gpt 4o

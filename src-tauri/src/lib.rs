@@ -8,6 +8,20 @@ use reqwest;
 use dotenv::dotenv;
 use std::env;
 
+// Import modules
+mod talk;
+mod engine;
+mod network;
+mod speech;
+mod search;
+
+// Import battery command from tauri_plugin_system_info
+#[tauri::command]
+async fn get_battery_info() -> Result<tauri_plugin_system_info::model::Battery, String> {
+    tauri_plugin_system_info::commands::battery::get_battery()
+        .map_err(|e| e.to_string())
+}
+
 // Define the greet command that was referenced but not implemented
 #[tauri::command]
 fn greet(name: &str) -> String {
@@ -41,25 +55,6 @@ fn set_as_launcher() -> Result<(), String> {
     // This would typically involve platform-specific code
     // For now, we'll just return success as a placeholder
     Ok(())
-}
-
-// Battery level command
-#[tauri::command]
-fn get_battery_level(state: tauri::State<'_, tauri_plugin_system_info::SysInfoState>) -> Result<u8, String> {
-    let battery_info = battery::batteries(state).map_err(|e| e.to_string())?;
-    let first_battery = battery_info.get(0).ok_or("No battery found".to_string())?;
-    // Get the state of charge from the battery
-    let state_of_charge = first_battery.state_of_charge;
-    Ok(state_of_charge)
-}
-
-#[tauri::command]
-fn get_battery_state(state: tauri::State<'_, tauri_plugin_system_info::SysInfoState>) -> Result<BatteryState, String> {
-    let battery_info = battery::batteries(state).map_err(|e| e.to_string())?;
-    let first_battery = battery_info.get(0).ok_or("No battery found".to_string())?;
-    // Get the actual battery state
-    let battery_state = first_battery.state.clone();
-    Ok(battery_state)
 }
 
 // Weather data structures
@@ -118,25 +113,26 @@ async fn get_weather(lat: i8, lon: i8) -> Result<WeatherData, String> {
 pub fn run() {
     tauri::Builder::default()
         .plugin(tauri_plugin_opener::init())
-        // Add location and microphone permissions plugins
-        .setup(|_app| {
-            #[cfg(mobile)]
-            {
-                // Request permissions on mobile
-                // This is a placeholder - actual implementation would use platform-specific APIs
-            }
-            Ok(())
-        })
+        .plugin(tauri_plugin_system_info::init())
+        .plugin(tauri_plugin_geolocation::init())
         .invoke_handler(tauri::generate_handler![
             greet,
             is_first_run,
             complete_tutorial,
             set_as_launcher,
-            get_battery_level,
-            get_battery_state,
-            get_weather
+            get_weather,
+            get_battery_info,
+            network::check_network_status,
+            speech::initialize_stt,
+            speech::set_stt_mode,
+            speech::get_stt_mode,
+            speech::start_recording,
+            speech::stop_recording,
+            speech::transcribe_audio,
+            engine::process_text_input,
+            search::fetch_search_results,
+            search::open_link
         ])
-        .plugin(tauri_plugin_geolocation::init())
         .run(tauri::generate_context!())
         .expect("error while running tauri application");
 }
